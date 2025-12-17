@@ -1,12 +1,24 @@
 const cloudinary = require('cloudinary').v2;
 const QRCode = require('qrcode');
 
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 exports.handler = async (event, context) => {
+    // Log for debugging
+    console.log('Method:', event.httpMethod);
+    console.log('Path:', event.path);
+
     // CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json',
     };
 
     if (event.httpMethod === 'OPTIONS') {
@@ -17,7 +29,11 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 405,
             headers,
-            body: JSON.stringify({ error: 'Method not allowed' }),
+            body: JSON.stringify({
+                error: 'Method not allowed',
+                receivedMethod: event.httpMethod,
+                message: 'Please use POST method'
+            }),
         };
     }
 
