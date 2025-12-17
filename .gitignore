@@ -1,0 +1,10 @@
+node_modules/
+uploads/
+*.log
+.env
+.DS_Store
+test.txt
+test.png
+*.txt
+check_version.txt
+port_test.txt
