@@ -25,7 +25,7 @@ export default {
         if (url.pathname === '/upload' && request.method === 'POST') {
             return handleUpload(request, env, corsHeaders);
         }
-
+        //test
         // Default response
         return new Response('Image to QR Code API. POST to /upload with multipart/form-data', {
             headers: corsHeaders,
