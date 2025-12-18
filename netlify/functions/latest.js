@@ -30,16 +30,24 @@ exports.handler = async (event, context) => {
 
     try {
         // Get the latest image from Cloudinary
+        // Note: Cloudinary's direction parameter doesn't always work reliably,
+        // so we fetch more results and sort them ourselves
         const result = await cloudinary.api.resources({
             type: 'upload',
             prefix: 'image-to-qr',
-            max_results: 1,
+            max_results: 100,
             resource_type: 'image',
-            direction: 'desc', // Sort in descending order (newest first)
-            order_by: 'created_at', // Sort by creation date
         });
 
-        if (!result.resources || result.resources.length === 0) {
+        // Filter out QR codes (we only want the uploaded images, not the generated QR codes)
+        const uploadedImages = result.resources.filter(resource =>
+            !resource.public_id.includes('qr-codes/qr-')
+        );
+
+        // Sort by created_at in descending order (newest first)
+        uploadedImages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        if (!uploadedImages || uploadedImages.length === 0) {
             return {
                 statusCode: 404,
                 headers,
@@ -50,7 +58,8 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const latestImage = result.resources[0];
+
+        const latestImage = uploadedImages[0];
 
         // Find the corresponding QR code
         const qrResult = await cloudinary.api.resources({
@@ -58,7 +67,7 @@ exports.handler = async (event, context) => {
             prefix: 'image-to-qr/qr-codes',
             max_results: 1,
             resource_type: 'image',
-            direction: 'asc', // Sort in ascending order (newest first)
+            direction: 'desc', // Sort in descending order (newest first)
             order_by: 'created_at', // Sort by creation date
         });
 
