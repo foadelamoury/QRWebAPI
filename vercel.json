@@ -8,5 +8,5 @@
             "source": "/latest",
             "destination": "/api/latest"
         }
-    ],
+    ]
 }
