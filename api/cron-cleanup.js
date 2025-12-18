@@ -8,7 +8,7 @@ cloudinary.config({
 });
 
 // This function runs on a schedule to clean up old images
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Basic authorization for cron job (optional but recommended)
     // You can verify a secret header if you want to secure this endpoint further
 

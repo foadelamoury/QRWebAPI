@@ -8,13 +8,13 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const config = {
+const config = {
     api: {
         bodyParser: false,
     },
 };
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Log for debugging
     console.log('Method:', req.method);
     console.log('Path:', req.url);
@@ -129,4 +129,6 @@ export default async function handler(req, res) {
             message: error.message
         });
     }
-}
+};
+
+module.exports.config = config;
