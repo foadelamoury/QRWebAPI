@@ -8,7 +8,10 @@ cloudinary.config({
 });
 
 // This function runs on a schedule to clean up old images
-exports.handler = async (event, context) => {
+export default async function handler(req, res) {
+    // Basic authorization for cron job (optional but recommended)
+    // You can verify a secret header if you want to secure this endpoint further
+
     console.log('Starting scheduled cleanup...');
 
     try {
@@ -52,23 +55,17 @@ exports.handler = async (event, context) => {
 
         console.log(`Cleanup completed. Deleted ${deletedCount} images.`);
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'Cleanup completed successfully',
-                deletedCount,
-                timestamp: new Date().toISOString(),
-            }),
-        };
+        return res.status(200).json({
+            message: 'Cleanup completed successfully',
+            deletedCount,
+            timestamp: new Date().toISOString(),
+        });
 
     } catch (error) {
         console.error('Cleanup error:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                error: 'Cleanup failed',
-                message: error.message,
-            }),
-        };
+        return res.status(500).json({
+            error: 'Cleanup failed',
+            message: error.message,
+        });
     }
-};
+}

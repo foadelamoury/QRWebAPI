@@ -1,6 +1,12 @@
-import { put } from '@vercel/blob';
-import QRCode from 'qrcode';
-import { Readable } from 'stream';
+const cloudinary = require('cloudinary').v2;
+const QRCode = require('qrcode');
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const config = {
     api: {
@@ -9,6 +15,10 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+    // Log for debugging
+    console.log('Method:', req.method);
+    console.log('Path:', req.url);
+
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -19,38 +29,36 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({
+            error: 'Method not allowed',
+            receivedMethod: req.method,
+            message: 'Please use POST method'
+        });
     }
 
     try {
         // Parse multipart form data
-        const chunks = [];
-        for await (const chunk of req) {
-            chunks.push(chunk);
-        }
-        const buffer = Buffer.concat(chunks);
-
-        // Simple multipart parser to extract file
         const boundary = req.headers['content-type']?.split('boundary=')[1];
         if (!boundary) {
             return res.status(400).json({ error: 'No boundary found' });
         }
 
+        // Buffer the request body
+        const chunks = [];
+        for await (const chunk of req) {
+            chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
         const parts = buffer.toString('binary').split(`--${boundary}`);
+
         let fileBuffer = null;
         let filename = 'uploaded-file';
-        let contentType = 'application/octet-stream';
 
         for (const part of parts) {
             if (part.includes('Content-Disposition') && part.includes('name="image"')) {
                 const filenameMatch = part.match(/filename="(.+?)"/);
                 if (filenameMatch) {
                     filename = filenameMatch[1];
-                }
-
-                const contentTypeMatch = part.match(/Content-Type: (.+?)\r\n/);
-                if (contentTypeMatch) {
-                    contentType = contentTypeMatch[1];
                 }
 
                 const dataStart = part.indexOf('\r\n\r\n') + 4;
@@ -68,17 +76,22 @@ export default async function handler(req, res) {
             });
         }
 
-        // Generate unique filename using crypto for better randomness
-        const timestamp = Date.now();
-        const uuid = crypto.randomUUID().split('-')[0]; // Use first part of UUID for brevity
-        const ext = filename.split('.').pop() || 'bin';
-        const uniqueFilename = `${timestamp}-${uuid}.${ext}`;
-
-        // Upload to Vercel Blob
-        const { url: fileUrl } = await put(uniqueFilename, fileBuffer, {
-            access: 'public',
-            contentType: contentType,
+        // Upload to Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'image-to-qr',
+                    public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`,
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            uploadStream.end(fileBuffer);
         });
+
+        const fileUrl = uploadResult.secure_url;
 
         // Generate QR code
         const qrBuffer = await QRCode.toBuffer(fileUrl, {
@@ -86,12 +99,22 @@ export default async function handler(req, res) {
             width: 300,
         });
 
-        // Upload QR code to Vercel Blob
-        const qrFilename = `qr-${uniqueFilename}.png`;
-        const { url: qrUrl } = await put(qrFilename, qrBuffer, {
-            access: 'public',
-            contentType: 'image/png',
+        // Upload QR code to Cloudinary
+        const qrResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'image-to-qr/qr-codes',
+                    public_id: `qr-${Date.now()}-${Math.round(Math.random() * 1E9)}`,
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            uploadStream.end(qrBuffer);
         });
+
+        const qrUrl = qrResult.secure_url;
 
         return res.status(200).json({
             message: 'File uploaded successfully',

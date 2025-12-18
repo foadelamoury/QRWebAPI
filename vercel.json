@@ -6,10 +6,20 @@
             "use": "@vercel/node"
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/upload",
-            "dest": "/api/upload.js"
+            "source": "/upload",
+            "destination": "/api/upload.js"
+        },
+        {
+            "source": "/latest",
+            "destination": "/api/latest.js"
+        }
+    ],
+    "crons": [
+        {
+            "path": "/api/cron-cleanup.js",
+            "schedule": "0 * * * *"
         }
     ]
 }

@@ -7,25 +7,18 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-exports.handler = async (event, context) => {
+export default async function handler(req, res) {
     // CORS headers
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Content-Type': 'application/json',
-    };
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
-    if (event.httpMethod !== 'GET') {
-        return {
-            statusCode: 405,
-            headers,
-            body: JSON.stringify({ error: 'Method not allowed' }),
-        };
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
@@ -48,16 +41,11 @@ exports.handler = async (event, context) => {
         uploadedImages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         if (!uploadedImages || uploadedImages.length === 0) {
-            return {
-                statusCode: 404,
-                headers,
-                body: JSON.stringify({
-                    error: 'No images found',
-                    message: 'No images have been uploaded yet'
-                }),
-            };
+            return res.status(404).json({
+                error: 'No images found',
+                message: 'No images have been uploaded yet'
+            });
         }
-
 
         const latestImage = uploadedImages[0];
 
@@ -79,26 +67,18 @@ exports.handler = async (event, context) => {
             latestQR = sortedQRs[0];
         }
 
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                message: 'Latest image retrieved successfully',
-                fileUrl: latestImage.secure_url,
-                qrCodeUrl: latestQR ? latestQR.secure_url : null,
-                uploadedAt: latestImage.created_at,
-            }),
-        };
+        return res.status(200).json({
+            message: 'Latest image retrieved successfully',
+            fileUrl: latestImage.secure_url,
+            qrCodeUrl: latestQR ? latestQR.secure_url : null,
+            uploadedAt: latestImage.created_at,
+        });
 
     } catch (error) {
         console.error('Error fetching latest image:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                error: 'Failed to retrieve image',
-                message: error.message
-            }),
-        };
+        return res.status(500).json({
+            error: 'Failed to retrieve image',
+            message: error.message
+        });
     }
-};
+}
