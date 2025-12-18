@@ -9,10 +9,4 @@
             "destination": "/api/latest"
         }
     ],
-    "crons": [
-        {
-            "path": "/api/cron-cleanup",
-            "schedule": "0 * * * *"
-        }
-    ]
 }
