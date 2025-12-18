@@ -2,11 +2,11 @@
     "rewrites": [
         {
             "source": "/upload",
-            "destination": "/api/upload.js"
+            "destination": "/api/upload"
         },
         {
             "source": "/latest",
-            "destination": "/api/latest.js"
+            "destination": "/api/latest"
         }
     ],
     "crons": [
