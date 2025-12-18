@@ -35,6 +35,8 @@ exports.handler = async (event, context) => {
             prefix: 'image-to-qr',
             max_results: 1,
             resource_type: 'image',
+            direction: 'desc', // Sort in descending order (newest first)
+            order_by: 'created_at', // Sort by creation date
         });
 
         if (!result.resources || result.resources.length === 0) {
@@ -56,6 +58,8 @@ exports.handler = async (event, context) => {
             prefix: 'image-to-qr/qr-codes',
             max_results: 1,
             resource_type: 'image',
+            direction: 'desc', // Sort in descending order (newest first)
+            order_by: 'created_at', // Sort by creation date
         });
 
         const latestQR = qrResult.resources && qrResult.resources.length > 0

@@ -73,11 +73,11 @@ async function handleUpload(request, env, corsHeaders) {
             });
         }
 
-        // Generate unique filename
+        // Generate unique filename using crypto for better randomness
         const timestamp = Date.now();
-        const random = Math.round(Math.random() * 1E9);
+        const uuid = crypto.randomUUID().split('-')[0]; // Use first part of UUID for brevity
         const ext = file.name.split('.').pop() || 'bin';
-        const filename = `${timestamp}-${random}.${ext}`;
+        const filename = `${timestamp}-${uuid}.${ext}`;
 
         // Upload file to R2
         await env.UPLOADS_BUCKET.put(filename, file.stream(), {

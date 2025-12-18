@@ -68,11 +68,11 @@ export default async function handler(req, res) {
             });
         }
 
-        // Generate unique filename
+        // Generate unique filename using crypto for better randomness
         const timestamp = Date.now();
-        const random = Math.round(Math.random() * 1E9);
+        const uuid = crypto.randomUUID().split('-')[0]; // Use first part of UUID for brevity
         const ext = filename.split('.').pop() || 'bin';
-        const uniqueFilename = `${timestamp}-${random}.${ext}`;
+        const uniqueFilename = `${timestamp}-${uuid}.${ext}`;
 
         // Upload to Vercel Blob
         const { url: fileUrl } = await put(uniqueFilename, fileBuffer, {
