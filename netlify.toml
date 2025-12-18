@@ -10,3 +10,6 @@
   from = "/latest"
   to = "/.netlify/functions/latest"
   status = 200
+
+[functions."scheduled-cleanup"]
+  schedule = "0 * * * *"
