@@ -58,7 +58,7 @@ exports.handler = async (event, context) => {
             prefix: 'image-to-qr/qr-codes',
             max_results: 1,
             resource_type: 'image',
-            direction: 'desc', // Sort in descending order (newest first)
+            direction: 'asc', // Sort in ascending order (newest first)
             order_by: 'created_at', // Sort by creation date
         });
 
