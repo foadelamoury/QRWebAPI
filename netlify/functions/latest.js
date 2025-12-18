@@ -62,18 +62,22 @@ exports.handler = async (event, context) => {
         const latestImage = uploadedImages[0];
 
         // Find the corresponding QR code
+        // Fetch multiple QR codes and sort manually (same issue as with images)
         const qrResult = await cloudinary.api.resources({
             type: 'upload',
             prefix: 'image-to-qr/qr-codes',
-            max_results: 1,
+            max_results: 100,
             resource_type: 'image',
-            direction: 'desc', // Sort in descending order (newest first)
-            order_by: 'created_at', // Sort by creation date
         });
 
-        const latestQR = qrResult.resources && qrResult.resources.length > 0
-            ? qrResult.resources[0]
-            : null;
+        // Sort QR codes by created_at in descending order (newest first)
+        let latestQR = null;
+        if (qrResult.resources && qrResult.resources.length > 0) {
+            const sortedQRs = qrResult.resources.sort((a, b) =>
+                new Date(b.created_at) - new Date(a.created_at)
+            );
+            latestQR = sortedQRs[0];
+        }
 
         return {
             statusCode: 200,
