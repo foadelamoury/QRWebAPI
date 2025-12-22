@@ -53,8 +53,17 @@ module.exports = async function handler(req, res) {
 
         let fileBuffer = null;
         let filename = 'uploaded-file';
+        let folderName = 'uploads'; // Default folder name
 
         for (const part of parts) {
+            // Extract the folder name from form data
+            if (part.includes('Content-Disposition') && part.includes('name="folder"') && !part.includes('filename=')) {
+                const dataStart = part.indexOf('\r\n\r\n') + 4;
+                const dataEnd = part.lastIndexOf('\r\n');
+                folderName = part.substring(dataStart, dataEnd).trim();
+            }
+
+            // Extract the image file
             if (part.includes('Content-Disposition') && part.includes('name="image"')) {
                 const filenameMatch = part.match(/filename="(.+?)"/);
                 if (filenameMatch) {
@@ -65,7 +74,6 @@ module.exports = async function handler(req, res) {
                 const dataEnd = part.lastIndexOf('\r\n');
                 const fileData = part.substring(dataStart, dataEnd);
                 fileBuffer = Buffer.from(fileData, 'binary');
-                break;
             }
         }
 
@@ -80,7 +88,7 @@ module.exports = async function handler(req, res) {
         const uploadResult = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
-                    folder: 'image-to-qr',
+                    folder: folderName,
                     public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`,
                 },
                 (error, result) => {
@@ -103,7 +111,7 @@ module.exports = async function handler(req, res) {
         const qrResult = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
-                    folder: 'image-to-qr/qr-codes',
+                    folder: `${folderName}/qr-codes`,
                     public_id: `qr-${Date.now()}-${Math.round(Math.random() * 1E9)}`,
                 },
                 (error, result) => {
