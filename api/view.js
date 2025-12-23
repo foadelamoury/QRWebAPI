@@ -81,13 +81,13 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            color: #fff;
+            color: #333;
         }
 
         .container {
@@ -99,19 +99,13 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             gap: 24px;
         }
 
-        .logo {
-            width: 120px;
-            height: auto;
-            margin-bottom: 8px;
-        }
-
         .image-container {
             width: 100%;
-            background: rgba(138, 43, 226, 0.1);
+            background: #f8f9fa;
             border-radius: 16px;
             overflow: hidden;
-            border: 2px solid rgba(138, 43, 226, 0.3);
-            box-shadow: 0 8px 32px rgba(138, 43, 226, 0.2);
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
         .image-container img {
@@ -144,23 +138,14 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            background: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(138, 43, 226, 0.2);
-            border: 2px solid rgba(138, 43, 226, 0.5);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(138, 43, 226, 0.3);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: #444;
         }
 
         .share-section {
@@ -170,7 +155,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         .share-title {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
+            color: #666;
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -212,9 +197,21 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
         .share-btn.twitter { background: #000; }
 
         .footer {
-            margin-top: 24px;
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
+            color: #999;
+        }
+
+        .footer-logo {
+            width: 32px;
+            height: auto;
+        }
+
+        .footer-text {
+            font-weight: 500;
         }
 
         @media (max-width: 400px) {
@@ -226,8 +223,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 </head>
 <body>
     <div class="container">
-        <img src="${logoUrl}" alt="Logo" class="logo" onerror="this.style.display='none'">
-        
         <div class="image-container">
             <img src="${imageUrl}" alt="Shared Image" id="mainImage">
         </div>
@@ -241,7 +236,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
                 </svg>
                 Download Image
             </a>
-            
         </div>
 
         <div class="share-section">
@@ -262,14 +256,17 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             </div>
         </div>
 
-        <p class="footer">Powered by 5D Studio</p>
+        <div class="footer">
+            <img src="${logoUrl}" alt="5DVR" class="footer-logo" onerror="this.style.display='none'">
+            <span class="footer-text">Powered by 5DVR</span>
+        </div>
     </div>
 
     <script>
         function shareToInstagram() {
             // Instagram doesn't have a direct web share API
             // Best option is to prompt user to save and share manually
-            alert('To share on Instagram:\\n1. Tap "Save to Gallery" below\\n2. Open Instagram\\n3. Create a new post/story with the saved image');
+            alert('To share on Instagram:\\n1. Download the image\\n2. Open Instagram\\n3. Create a new post/story with the saved image');
         }
     </script>
 </body>
