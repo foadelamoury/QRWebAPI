@@ -100,9 +100,14 @@ module.exports = async function handler(req, res) {
         });
 
         const fileUrl = uploadResult.secure_url;
+        const publicId = uploadResult.public_id;
 
-        // Generate QR code
-        const qrBuffer = await QRCode.toBuffer(fileUrl, {
+        // Generate landing page URL for QR code
+        const baseUrl = process.env.BASE_URL || `https://${req.headers.host || 'your-domain.vercel.app'}`;
+        const landingPageUrl = `${baseUrl}/view?id=${encodeURIComponent(publicId)}`;
+
+        // Generate QR code pointing to landing page
+        const qrBuffer = await QRCode.toBuffer(landingPageUrl, {
             type: 'png',
             width: 300,
         });
@@ -128,6 +133,7 @@ module.exports = async function handler(req, res) {
             message: 'File uploaded successfully',
             fileUrl: fileUrl,
             qrCodeUrl: qrUrl,
+            landingPageUrl: landingPageUrl,
         });
 
     } catch (error) {

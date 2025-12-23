@@ -7,6 +7,10 @@
         {
             "source": "/latest",
             "destination": "/api/latest"
+        },
+        {
+            "source": "/view",
+            "destination": "/api/view"
         }
     ]
 }
