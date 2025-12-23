@@ -242,14 +242,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
                 Download Image
             </a>
             
-            <button class="btn btn-secondary" onclick="saveImage()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                    <polyline points="7 3 7 8 15 8"/>
-                </svg>
-                Save to Gallery
-            </button>
         </div>
 
         <div class="share-section">
@@ -274,41 +266,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
     </div>
 
     <script>
-        async function saveImage() {
-            const imageUrl = '${imageUrl}';
-            
-            try {
-                // For mobile devices, try native share
-                if (navigator.share && navigator.canShare) {
-                    const response = await fetch(imageUrl);
-                    const blob = await response.blob();
-                    const file = new File([blob], 'image.png', { type: blob.type });
-                    
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Save Image'
-                        });
-                        return;
-                    }
-                }
-                
-                // Fallback: Download the image
-                const link = document.createElement('a');
-                link.href = imageUrl;
-                link.download = 'image.png';
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-            } catch (error) {
-                console.error('Save error:', error);
-                // Final fallback: open in new tab
-                window.open(imageUrl, '_blank');
-            }
-        }
-
         function shareToInstagram() {
             // Instagram doesn't have a direct web share API
             // Best option is to prompt user to save and share manually
