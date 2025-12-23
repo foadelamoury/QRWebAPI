@@ -81,7 +81,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #ffffff;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
