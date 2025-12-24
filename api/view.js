@@ -206,13 +206,13 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             margin-top: 32px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 12px;
+            gap: 12px;
+            font-size: 16px;
             color: #999;
         }
 
         .footer-logo {
-            width: 32px;
+            width: 48px;
             height: auto;
         }
 
@@ -341,164 +341,69 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToWhatsApp() {
             const imageUrl = '${imageUrl}';
+            const text = encodeURIComponent('Check out this image!');
+            const url = encodeURIComponent(imageUrl);
             
-            try {
-                // Check if Web Share API is supported
-                if (navigator.share) {
-                    // Fetch the image
-                    const response = await fetch(imageUrl);
-                    if (!response.ok) throw new Error('Failed to fetch image');
-                    
-                    // Convert to blob
-                    const blob = await response.blob();
-                    
-                    // Extract filename from URL
-                    const urlParts = imageUrl.split('/');
-                    const filename = urlParts[urlParts.length - 1].split('?')[0] || 'image.jpg';
-                    
-                    // Create a File object from the blob
-                    const file = new File([blob], filename, { type: blob.type });
-                    
-                    // Check if the browser supports sharing files
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        // Share the image file
-                        await navigator.share({
-                            files: [file],
-                            title: 'Check out this image!',
-                            text: 'Check out this image!'
-                        });
-                    } else {
-                        // Fallback: share the direct image URL
-                        await navigator.share({
-                            title: 'Check out this image!',
-                            text: 'Check out this image!',
-                            url: imageUrl
-                        });
-                    }
-                } else {
-                    // Fallback for browsers without Web Share API (desktop)
-                    // Use WhatsApp Web with direct image URL
-                    const text = encodeURIComponent('Check out this image!');
-                    const url = encodeURIComponent(imageUrl);
+            // Detect mobile device
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try WhatsApp app deep link
+                window.location.href = \`whatsapp://send?text=\${text}%20\${url}\`;
+                
+                // Fallback to WhatsApp Web after delay
+                setTimeout(() => {
                     window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
-                }
-            } catch (error) {
-                // User cancelled or error occurred
-                if (error.name !== 'AbortError') {
-                    console.error('Share error:', error);
-                    // Fallback to WhatsApp Web with direct image URL
-                    const text = encodeURIComponent('Check out this image!');
-                    const url = encodeURIComponent(imageUrl);
-                    window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
-                }
+                }, 1500);
+            } else {
+                // Desktop: Open WhatsApp Web
+                window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
             }
         }
 
         async function shareToFacebook() {
             const imageUrl = '${imageUrl}';
             
-            try {
-                // Check if Web Share API is supported
-                if (navigator.share) {
-                    // Fetch the image
-                    const response = await fetch(imageUrl);
-                    if (!response.ok) throw new Error('Failed to fetch image');
-                    
-                    // Convert to blob
-                    const blob = await response.blob();
-                    
-                    // Extract filename from URL
-                    const urlParts = imageUrl.split('/');
-                    const filename = urlParts[urlParts.length - 1].split('?')[0] || 'image.jpg';
-                    
-                    // Create a File object from the blob
-                    const file = new File([blob], filename, { type: blob.type });
-                    
-                    // Check if the browser supports sharing files
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        // Share the image file
-                        await navigator.share({
-                            files: [file],
-                            title: 'Check out this image!',
-                            text: 'Check out this image!'
-                        });
-                    } else {
-                        // Fallback: share the direct image URL
-                        await navigator.share({
-                            title: 'Check out this image!',
-                            text: 'Check out this image!',
-                            url: imageUrl
-                        });
-                    }
-                } else {
-                    // Fallback for browsers without Web Share API (desktop)
-                    // Use Facebook sharer with direct image URL
-                    const url = encodeURIComponent(imageUrl);
+            // Facebook doesn't support direct image sharing via URL parameters
+            // Best approach: Open Facebook with the image URL
+            const url = encodeURIComponent(imageUrl);
+            
+            // Try to open Facebook app on mobile, fallback to web
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try Facebook app deep link
+                window.location.href = \`fb://facewebmodal/f?href=https://www.facebook.com/sharer/sharer.php?u=\${url}\`;
+                
+                // Fallback to web after delay
+                setTimeout(() => {
                     window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
-                }
-            } catch (error) {
-                // User cancelled or error occurred
-                if (error.name !== 'AbortError') {
-                    console.error('Share error:', error);
-                    // Fallback to Facebook sharer with direct image URL
-                    const url = encodeURIComponent(imageUrl);
-                    window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
-                }
+                }, 1500);
+            } else {
+                // Desktop: Open Facebook sharer
+                window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank', 'width=600,height=400');
             }
         }
 
         async function shareToTwitter() {
             const imageUrl = '${imageUrl}';
+            const text = encodeURIComponent('Check out this image!');
+            const url = encodeURIComponent(imageUrl);
             
-            try {
-                // Check if Web Share API is supported
-                if (navigator.share) {
-                    // Fetch the image
-                    const response = await fetch(imageUrl);
-                    if (!response.ok) throw new Error('Failed to fetch image');
-                    
-                    // Convert to blob
-                    const blob = await response.blob();
-                    
-                    // Extract filename from URL
-                    const urlParts = imageUrl.split('/');
-                    const filename = urlParts[urlParts.length - 1].split('?')[0] || 'image.jpg';
-                    
-                    // Create a File object from the blob
-                    const file = new File([blob], filename, { type: blob.type });
-                    
-                    // Check if the browser supports sharing files
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        // Share the image file
-                        await navigator.share({
-                            files: [file],
-                            title: 'Check out this image!',
-                            text: 'Check out this image!'
-                        });
-                    } else {
-                        // Fallback: share the direct image URL
-                        await navigator.share({
-                            title: 'Check out this image!',
-                            text: 'Check out this image!',
-                            url: imageUrl
-                        });
-                    }
-                } else {
-                    // Fallback for browsers without Web Share API (desktop)
-                    // Use Twitter intent with direct image URL
-                    const text = encodeURIComponent('Check out this image!');
-                    const url = encodeURIComponent(imageUrl);
+            // Detect mobile device
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Try Twitter app deep link
+                window.location.href = \`twitter://post?message=\${text}%20\${url}\`;
+                
+                // Fallback to Twitter web after delay
+                setTimeout(() => {
                     window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank');
-                }
-            } catch (error) {
-                // User cancelled or error occurred
-                if (error.name !== 'AbortError') {
-                    console.error('Share error:', error);
-                    // Fallback to Twitter intent with direct image URL
-                    const text = encodeURIComponent('Check out this image!');
-                    const url = encodeURIComponent(imageUrl);
-                    window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank');
-                }
+                }, 1500);
+            } else {
+                // Desktop: Open Twitter intent
+                window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank', 'width=600,height=400');
             }
         }
 
