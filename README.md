@@ -2,7 +2,7 @@
 
 A simple REST API that accepts image uploads and generates QR codes linking to the uploaded images.
 
-## Features 
+## Features
 
 - Upload images via POST request
 - Automatic QR code generation
