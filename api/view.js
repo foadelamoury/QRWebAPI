@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
 
 function generateLandingPage(imageUrl, pageUrl, logoUrl) {
     const encodedUrl = encodeURIComponent(pageUrl);
-    const encodedText = encodeURIComponent('Check out this image!');
+    // const encodedText = encodeURIComponent('Check out this image!');
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -175,32 +175,84 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
         }
 
         .share-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
             transition: all 0.3s ease;
-            border: none;
+            border: 2px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .share-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .share-btn:hover::before {
+            opacity: 1;
         }
 
         .share-btn:hover {
-            transform: scale(1.1);
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .share-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             fill: #fff;
+            position: relative;
+            z-index: 1;
         }
 
-        .share-btn.facebook { background: #1877F2; }
-        .share-btn.whatsapp { background: #25D366; }
-        .share-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .share-btn.twitter { background: #000; }
+        .share-btn.facebook { 
+            background: rgba(24, 119, 242, 0.15);
+            border-color: rgba(24, 119, 242, 0.3);
+        }
+        .share-btn.facebook:hover {
+            background: rgba(24, 119, 242, 0.25);
+            border-color: rgba(24, 119, 242, 0.5);
+        }
+
+        .share-btn.whatsapp { 
+            background: rgba(37, 211, 102, 0.15);
+            border-color: rgba(37, 211, 102, 0.3);
+        }
+        .share-btn.whatsapp:hover {
+            background: rgba(37, 211, 102, 0.25);
+            border-color: rgba(37, 211, 102, 0.5);
+        }
+
+        .share-btn.twitter { 
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .share-btn.twitter:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .share-btn.instagram { 
+            background: rgba(138, 92, 246, 0.15);
+            border-color: rgba(138, 92, 246, 0.3);
+        }
+        .share-btn.instagram:hover {
+            background: rgba(138, 92, 246, 0.25);
+            border-color: rgba(138, 92, 246, 0.5);
+        }
+
 
         .footer {
             margin-top: 32px;
