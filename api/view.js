@@ -207,12 +207,12 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             display: flex;
             align-items: center;
             gap: 14px;
-            font-size: 19px;
+            font-size: 12px;
             color: #999;
         }
 
         .footer-logo {
-            width: 58px;
+            width: 64px;
             height: auto;
         }
 
@@ -363,34 +363,23 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToFacebook() {
             const imageUrl = '${imageUrl}';
-            const pageUrl = '${pageUrl}';
             
-            // Encode URLs
+            // Encode image URL
             const encodedImageUrl = encodeURIComponent(imageUrl);
-            const encodedPageUrl = encodeURIComponent(pageUrl);
+            
+            // Use Facebook's Feed Dialog which shows image preview
+            // This works on both mobile and desktop
+            const fbDialogUrl = \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=Check%20out%20this%20image!&redirect_uri=https://www.facebook.com\`;
             
             // Detect mobile device
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
-            // Try different Facebook sharing methods
             if (isMobile) {
-                // Method 1: Try Facebook app with Feed Dialog (works on some devices)
-                const fbFeedUrl = \`fb://facewebmodal/f?href=https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&redirect_uri=https://www.facebook.com\`;
-                window.location.href = fbFeedUrl;
-                
-                // Fallback: Open Facebook Feed Dialog in browser
-                setTimeout(() => {
-                    // Using Facebook's Feed Dialog which shows image preview
-                    window.open(\`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&redirect_uri=https://www.facebook.com\`, '_blank');
-                }, 1500);
+                // Mobile: Open in same window (will redirect back)
+                window.open(fbDialogUrl, '_blank');
             } else {
-                // Desktop: Use Facebook Feed Dialog with image
-                // This will show a preview of the image in the post composer
-                window.open(
-                    \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=Check%20out%20this%20image!&redirect_uri=https://www.facebook.com\`,
-                    '_blank',
-                    'width=600,height=400'
-                );
+                // Desktop: Open in popup
+                window.open(fbDialogUrl, '_blank', 'width=600,height=400');
             }
         }
 
