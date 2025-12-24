@@ -148,6 +148,12 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             background: #444;
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
         .share-section {
             width: 100%;
             text-align: center;
@@ -228,14 +234,14 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
         </div>
 
         <div class="actions">
-            <a href="${imageUrl}" download class="btn btn-primary" id="downloadBtn">
+            <button onclick="downloadImage()" class="btn btn-primary" id="downloadBtn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Download Image
-            </a>
+                <span id="downloadText">Download Image</span>
+            </button>
         </div>
 
         <div class="share-section">
@@ -263,6 +269,54 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
     </div>
 
     <script>
+        async function downloadImage() {
+            const imageUrl = '${imageUrl}';
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadText = document.getElementById('downloadText');
+            
+            try {
+                // Update button state
+                downloadBtn.disabled = true;
+                downloadText.textContent = 'Downloading...';
+                
+                // Fetch the image
+                const response = await fetch(imageUrl);
+                if (!response.ok) throw new Error('Failed to fetch image');
+                
+                // Convert to blob
+                const blob = await response.blob();
+                
+                // Create a temporary URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                // Extract filename from URL or use default
+                const urlParts = imageUrl.split('/');
+                const filename = urlParts[urlParts.length - 1].split('?')[0] || 'image.jpg';
+                
+                // Create a temporary anchor element and trigger download
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+                
+                // Reset button state
+                downloadText.textContent = 'Download Image';
+                downloadBtn.disabled = false;
+            } catch (error) {
+                console.error('Download error:', error);
+                downloadText.textContent = 'Download Failed';
+                setTimeout(() => {
+                    downloadText.textContent = 'Download Image';
+                    downloadBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
         function shareToInstagram() {
             // Instagram doesn't have a direct web share API
             // Best option is to prompt user to save and share manually
