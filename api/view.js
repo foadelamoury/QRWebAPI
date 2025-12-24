@@ -206,13 +206,13 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             margin-top: 32px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 16px;
+            gap: 14px;
+            font-size: 19px;
             color: #999;
         }
 
         .footer-logo {
-            width: 48px;
+            width: 58px;
             height: auto;
         }
 
@@ -363,25 +363,34 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToFacebook() {
             const imageUrl = '${imageUrl}';
+            const pageUrl = '${pageUrl}';
             
-            // Facebook doesn't support direct image sharing via URL parameters
-            // Best approach: Open Facebook with the image URL
-            const url = encodeURIComponent(imageUrl);
+            // Encode URLs
+            const encodedImageUrl = encodeURIComponent(imageUrl);
+            const encodedPageUrl = encodeURIComponent(pageUrl);
             
-            // Try to open Facebook app on mobile, fallback to web
+            // Detect mobile device
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
+            // Try different Facebook sharing methods
             if (isMobile) {
-                // Try Facebook app deep link
-                window.location.href = \`fb://facewebmodal/f?href=https://www.facebook.com/sharer/sharer.php?u=\${url}\`;
+                // Method 1: Try Facebook app with Feed Dialog (works on some devices)
+                const fbFeedUrl = \`fb://facewebmodal/f?href=https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&redirect_uri=https://www.facebook.com\`;
+                window.location.href = fbFeedUrl;
                 
-                // Fallback to web after delay
+                // Fallback: Open Facebook Feed Dialog in browser
                 setTimeout(() => {
-                    window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
+                    // Using Facebook's Feed Dialog which shows image preview
+                    window.open(\`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&redirect_uri=https://www.facebook.com\`, '_blank');
                 }, 1500);
             } else {
-                // Desktop: Open Facebook sharer
-                window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank', 'width=600,height=400');
+                // Desktop: Use Facebook Feed Dialog with image
+                // This will show a preview of the image in the post composer
+                window.open(
+                    \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=Check%20out%20this%20image!&redirect_uri=https://www.facebook.com\`,
+                    '_blank',
+                    'width=600,height=400'
+                );
             }
         }
 
