@@ -344,7 +344,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         <div class="footer">
             <img src="${logoUrl}" alt="5DVR" class="footer-logo" onerror="this.style.display='none'">
-            <span class="footer-text">Powered by 5DVR</span>
+            <span class="footer-text">Powered by 5dVR</span>
         </div>
     </div>
 
