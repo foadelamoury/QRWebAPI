@@ -57,7 +57,15 @@ module.exports = async function handler(req, res) {
 
 function generateLandingPage(imageUrl, pageUrl, logoUrl) {
     const encodedUrl = encodeURIComponent(pageUrl);
-    // const encodedText = encodeURIComponent('Check out this image!');
+
+    // Random caption selection
+    const captions = [
+        "Good food, good mood, and a very full stomach.",
+        "Found my new happy place ^^",
+        "Wok this way for the best meal of the week.",
+        "My digital passport is full! Today's itinerary: Exploring the beautiful threads and delicious tastes of China, Japan, and Thailand."
+    ];
+    const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -399,7 +407,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToWhatsApp() {
             const imageUrl = '${imageUrl}';
-            const text = encodeURIComponent('Check out this image!');
+            const text = encodeURIComponent('${randomCaption}');
             const url = encodeURIComponent(imageUrl);
             
             // Detect mobile device
@@ -427,7 +435,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             
             // Use Facebook's Feed Dialog which shows image preview
             // This works on both mobile and desktop
-            const fbDialogUrl = \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=Check%20out%20this%20image!&redirect_uri=https://www.facebook.com\`;
+            const fbDialogUrl = \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=${encodeURIComponent('${randomCaption}')}&redirect_uri=https://www.facebook.com\`;
             
             // Detect mobile device
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -443,7 +451,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToTwitter() {
             const imageUrl = '${imageUrl}';
-            const text = encodeURIComponent('Check out this image!');
+            const text = encodeURIComponent('${randomCaption}');
             const url = encodeURIComponent(imageUrl);
             
             // Detect mobile device
@@ -488,8 +496,8 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
                         // Share the image file using native share sheet
                         await navigator.share({
                             files: [file],
-                            title: 'Check out this image!',
-                            text: 'Check out this image!'
+                            title: '${randomCaption}',
+                            text: '${randomCaption}'
                         });
                         return; // Success, exit function
                     }
