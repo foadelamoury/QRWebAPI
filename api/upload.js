@@ -57,18 +57,24 @@ module.exports = async function handler(req, res) {
         let metadata = null;
 
         for (const part of parts) {
-            // Extract the folder name from form data
-            if (part.includes('Content-Disposition') && part.includes('name="folder"') && !part.includes('filename=')) {
-                const dataStart = part.indexOf('\r\n\r\n') + 4;
-                const dataEnd = part.lastIndexOf('\r\n');
-                folderName = part.substring(dataStart, dataEnd).trim();
+            if (!part || !part.includes('Content-Disposition')) continue;
+
+            const dataStart = part.indexOf('\r\n\r\n');
+            const dataEnd = part.lastIndexOf('\r\n');
+
+            if (dataStart === -1 || dataEnd === -1 || dataEnd <= dataStart) continue;
+
+            const headerPart = part.substring(0, dataStart);
+            const contentStart = dataStart + 4;
+
+            // Extract the folder name
+            if (headerPart.includes('name="folder"') && !headerPart.includes('filename=')) {
+                folderName = part.substring(contentStart, dataEnd).trim();
             }
 
-            // Extract the metadata from form data
-            if (part.includes('Content-Disposition') && part.includes('name="metadata"') && !part.includes('filename=')) {
-                const dataStart = part.indexOf('\r\n\r\n') + 4;
-                const dataEnd = part.lastIndexOf('\r\n');
-                const metadataStr = part.substring(dataStart, dataEnd).trim();
+            // Extract the metadata
+            if (headerPart.includes('name="metadata"') && !headerPart.includes('filename=')) {
+                const metadataStr = part.substring(contentStart, dataEnd).trim();
                 try {
                     metadata = JSON.parse(metadataStr);
                 } catch (e) {
@@ -77,15 +83,12 @@ module.exports = async function handler(req, res) {
             }
 
             // Extract the image file
-            if (part.includes('Content-Disposition') && part.includes('name="image"')) {
-                const filenameMatch = part.match(/filename="(.+?)"/);
+            if (headerPart.includes('name="image"')) {
+                const filenameMatch = headerPart.match(/filename="(.+?)"/);
                 if (filenameMatch) {
                     filename = filenameMatch[1];
                 }
-
-                const dataStart = part.indexOf('\r\n\r\n') + 4;
-                const dataEnd = part.lastIndexOf('\r\n');
-                const fileData = part.substring(dataStart, dataEnd);
+                const fileData = part.substring(contentStart, dataEnd);
                 fileBuffer = Buffer.from(fileData, 'binary');
             }
         }
@@ -93,7 +96,7 @@ module.exports = async function handler(req, res) {
         if (!fileBuffer) {
             return res.status(400).json({
                 error: 'No file uploaded',
-                message: 'Please select a file to upload'
+                message: 'Please select a file to upload or ensure key is "image"'
             });
         }
 
@@ -105,17 +108,43 @@ module.exports = async function handler(req, res) {
             };
 
             if (metadata) {
+                const context = {};
                 if (typeof metadata === 'object' && metadata !== null) {
-                    uploadOptions.context = metadata;
+                    Object.entries(metadata).forEach(([key, value]) => {
+                        const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+                        const strValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+
+                        // If value is longer than 255, split it into chunks
+                        if (strValue.length > 255) {
+                            const chunks = strValue.match(/.{1,255}/g);
+                            chunks.forEach((chunk, index) => {
+                                context[`${safeKey}_${index + 1}`] = chunk;
+                            });
+                        } else {
+                            context[safeKey] = strValue;
+                        }
+                    });
                 } else {
-                    uploadOptions.context = { custom: metadata };
+                    const strValue = String(metadata);
+                    if (strValue.length > 255) {
+                        const chunks = strValue.match(/.{1,255}/g);
+                        chunks.forEach((chunk, index) => {
+                            context[`custom_${index + 1}`] = chunk;
+                        });
+                    } else {
+                        context.custom = strValue;
+                    }
                 }
+                uploadOptions.context = context;
             }
 
             const uploadStream = cloudinary.uploader.upload_stream(
                 uploadOptions,
                 (error, result) => {
-                    if (error) reject(error);
+                    if (error) {
+                        console.error('Cloudinary stream error:', error);
+                        reject(error);
+                    }
                     else resolve(result);
                 }
             );
@@ -163,7 +192,8 @@ module.exports = async function handler(req, res) {
         console.error('Upload error:', error);
         return res.status(500).json({
             error: 'Upload failed',
-            message: error.message
+            message: error.message,
+            details: error.http_code ? `Status ${error.http_code}: ${JSON.stringify(error)}` : undefined
         });
     }
 };
