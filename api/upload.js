@@ -54,6 +54,7 @@ module.exports = async function handler(req, res) {
         let fileBuffer = null;
         let filename = 'uploaded-file';
         let folderName = 'uploads'; // Default folder name
+        let metadata = null;
 
         for (const part of parts) {
             // Extract the folder name from form data
@@ -61,6 +62,18 @@ module.exports = async function handler(req, res) {
                 const dataStart = part.indexOf('\r\n\r\n') + 4;
                 const dataEnd = part.lastIndexOf('\r\n');
                 folderName = part.substring(dataStart, dataEnd).trim();
+            }
+
+            // Extract the metadata from form data
+            if (part.includes('Content-Disposition') && part.includes('name="metadata"') && !part.includes('filename=')) {
+                const dataStart = part.indexOf('\r\n\r\n') + 4;
+                const dataEnd = part.lastIndexOf('\r\n');
+                const metadataStr = part.substring(dataStart, dataEnd).trim();
+                try {
+                    metadata = JSON.parse(metadataStr);
+                } catch (e) {
+                    metadata = metadataStr;
+                }
             }
 
             // Extract the image file
@@ -86,11 +99,21 @@ module.exports = async function handler(req, res) {
 
         // Upload to Cloudinary
         const uploadResult = await new Promise((resolve, reject) => {
+            const uploadOptions = {
+                folder: folderName,
+                public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`,
+            };
+
+            if (metadata) {
+                if (typeof metadata === 'object' && metadata !== null) {
+                    uploadOptions.context = metadata;
+                } else {
+                    uploadOptions.context = { custom: metadata };
+                }
+            }
+
             const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                    folder: folderName,
-                    public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`,
-                },
+                uploadOptions,
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
