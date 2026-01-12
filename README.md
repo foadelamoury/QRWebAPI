@@ -13,7 +13,7 @@ A simple REST API that accepts image uploads and generates QR codes linking to t
 
 ### POST /upload
 
-Upload an image and receive a QR code linking to it.
+Upload an image and receive a QR code linking to it
 
 **Request:**
 - Method: `POST`
