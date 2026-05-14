@@ -58,14 +58,6 @@ module.exports = async function handler(req, res) {
 function generateLandingPage(imageUrl, pageUrl, logoUrl) {
     const encodedUrl = encodeURIComponent(pageUrl);
 
-    // Random caption selection
-    const captions = [
-        "Good food, good mood, and a very full stomach.",
-        "Found my new happy place ^^",
-        "Wok this way for the best meal of the week.",
-        "My digital passport is full! Today's itinerary: Exploring the beautiful threads and delicious tastes of China, Japan, and Thailand."
-    ];
-    const randomCaption = captions[Math.floor(Math.random() * captions.length)];
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -407,7 +399,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToWhatsApp() {
             const imageUrl = '${imageUrl}';
-            const text = encodeURIComponent('${randomCaption}');
             const url = encodeURIComponent(imageUrl);
             
             // Detect mobile device
@@ -415,15 +406,15 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             
             if (isMobile) {
                 // Try WhatsApp app deep link
-                window.location.href = \`whatsapp://send?text=\${text}%20\${url}\`;
+                window.location.href = \`whatsapp://send?text=\${url}\`;
                 
                 // Fallback to WhatsApp Web after delay
                 setTimeout(() => {
-                    window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
+                    window.open(\`https://wa.me/?text=\${url}\`, '_blank');
                 }, 1500);
             } else {
                 // Desktop: Open WhatsApp Web
-                window.open(\`https://wa.me/?text=\${text}%20\${url}\`, '_blank');
+                window.open(\`https://wa.me/?text=\${url}\`, '_blank');
             }
         }
 
@@ -435,7 +426,7 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             
             // Use Facebook's Feed Dialog which shows image preview
             // This works on both mobile and desktop
-            const fbDialogUrl = \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&caption=${encodeURIComponent('${randomCaption}')}&redirect_uri=https://www.facebook.com\`;
+            const fbDialogUrl = \`https://www.facebook.com/dialog/feed?app_id=966242223397117&link=\${encodedImageUrl}&picture=\${encodedImageUrl}&redirect_uri=https://www.facebook.com\`;
             
             // Detect mobile device
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -451,7 +442,6 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
 
         async function shareToTwitter() {
             const imageUrl = '${imageUrl}';
-            const text = encodeURIComponent('${randomCaption}');
             const url = encodeURIComponent(imageUrl);
             
             // Detect mobile device
@@ -459,15 +449,15 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
             
             if (isMobile) {
                 // Try Twitter app deep link
-                window.location.href = \`twitter://post?message=\${text}%20\${url}\`;
+                window.location.href = \`twitter://post?message=\${url}\`;
                 
                 // Fallback to Twitter web after delay
                 setTimeout(() => {
-                    window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank');
+                    window.open(\`https://twitter.com/intent/tweet?url=\${url}\`, '_blank');
                 }, 1500);
             } else {
                 // Desktop: Open Twitter intent
-                window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank', 'width=600,height=400');
+                window.open(\`https://twitter.com/intent/tweet?url=\${url}\`, '_blank', 'width=600,height=400');
             }
         }
 
@@ -496,8 +486,8 @@ function generateLandingPage(imageUrl, pageUrl, logoUrl) {
                         // Share the image file using native share sheet
                         await navigator.share({
                             files: [file],
-                            title: '${randomCaption}',
-                            text: '${randomCaption}'
+                            title: 'Shared Image',
+                            text: ''
                         });
                         return; // Success, exit function
                     }
