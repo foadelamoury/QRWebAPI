@@ -6,7 +6,7 @@ A simple REST API that accepts image uploads and generates QR codes linking to t
 
 - Upload images via POST request
 - Automatic QR code generation
-- QR code saved as PNG file
+- QR code saved as PNG file.
 - Returns both image URL and QR code URL
 
 ## API Endpoint
